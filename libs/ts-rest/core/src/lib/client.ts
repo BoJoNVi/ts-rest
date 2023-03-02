@@ -84,6 +84,7 @@ export type ApiRouteResponse<T> =
       [K in keyof T]: {
         status: K;
         body: ZodInferOrType<T[K]>;
+        header: Record<string, string>;
       };
     }[keyof T]
   | {
@@ -145,14 +146,14 @@ export const tsRestFetchApi: ApiFetcher = async ({
   const contentType = result.headers.get('content-type');
 
   if (contentType?.includes('application/json')) {
-    return { status: result.status, body: await result.json() };
+    return { status: result.status, body: await result.json(), headers: result.headers };
   }
 
   if (contentType?.includes('text/plain')) {
-    return { status: result.status, body: await result.text() };
+    return { status: result.status, body: await result.text(), headers: result.headers };
   }
 
-  return { status: result.status, body: await result.blob() };
+  return { status: result.status, body: await result.blob(), headers: result.headers };
 };
 
 const createFormData = (body: unknown) => {
